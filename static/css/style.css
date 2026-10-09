@@ -169,3 +169,33 @@ body {
   background: var(--red-light);
   color: var(--red);
 }
+
+.tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.tabs a {
+  flex: 1;
+  padding: 8px 0;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--text);
+  text-align: center;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.tabs a.active {
+  background: var(--purple);
+  border-color: var(--purple);
+  color: #fff;
+}
+
+.empty {
+  padding: 40px 0;
+  color: var(--gray);
+  text-align: center;
+}

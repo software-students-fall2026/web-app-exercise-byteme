@@ -27,10 +27,17 @@ def inject_constants():
         "BUILDINGS": BUILDINGS,
     }
 
+# --- A: home / list page ---
 @app.route("/")
 def home():
-    recent = items.find().sort("created_at", pymongo.DESCENDING).limit(50)
-    return render_template("index.html", items=list(recent))
+    """List recent posts, optionally filtered by ?type=lost or ?type=found."""
+    item_type = request.args.get("type")
+    if item_type not in ITEM_TYPES:
+        item_type = None  # ignore missing or invalid values, show everything
+
+    query = {"type": item_type} if item_type else {}
+    recent = items.find(query).sort("created_at", pymongo.DESCENDING).limit(50)
+    return render_template("index.html", items=list(recent), active_type=item_type)
 
 
 # --B: detail + delete ---
