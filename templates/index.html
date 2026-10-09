@@ -1,7 +1,12 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <h2>Recent posts</h2>
+  <nav class="tabs">
+    <a href="{{ url_for('home') }}" class="{{ 'active' if not active_type }}">All</a>
+    {% for t in ITEM_TYPES %}
+      <a href="{{ url_for('home', type=t) }}" class="{{ 'active' if active_type == t }}">{{ t | capitalize }}</a>
+    {% endfor %}
+  </nav>
 
   {% if items %}
     {% for item in items %}
@@ -12,6 +17,6 @@
       </div>
     {% endfor %}
   {% else %}
-    <p>No posts yet.</p>
+    <p class="empty">No {{ active_type or "" }} posts yet.</p>
   {% endif %}
 {% endblock %}
