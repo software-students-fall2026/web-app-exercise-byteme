@@ -5,11 +5,17 @@
 
   {% if items %}
     {% for item in items %}
-      <div class="card">
-        <span class="badge badge-{{ item.type }}">{{ item.type | capitalize }}</span>
+      <a
+        class="card"
+        href="{{ url_for('item_detail', item_id=item['_id']) }}"
+      >
+        <span class="badge badge-{{ item.type }}">
+          {{ item.type | capitalize }}
+        </span>
+
         <h3>{{ item.title }}</h3>
         <p>{{ item.category }} · {{ item.building }}</p>
-      </div>
+      </a>
     {% endfor %}
   {% else %}
     <p>No posts yet.</p>

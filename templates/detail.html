@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}
+  {{ item.title }} | Campus Lost &amp; Found
+{% endblock %}
+
+{% block content %}
+  <a href="{{ url_for('home') }}">← Back to recent posts</a>
+
+  <h1>Item details</h1>
+
+  <article class="detail">
+    <span class="badge badge-{{ item.type }}">
+      {{ item.type | capitalize }}
+    </span>
+
+    <h2>{{ item.title }}</h2>
+
+    <div class="field">
+      <h3>Description</h3>
+      <p>{{ item.description or "No description provided." }}</p>
+    </div>
+
+    <div class="field">
+      <h3>Category</h3>
+      <p>{{ item.category or "Not provided" }}</p>
+    </div>
+
+    <div class="field">
+      <h3>Building</h3>
+      <p>{{ item.building or "Not provided" }}</p>
+    </div>
+
+    <div class="field">
+      <h3>Location</h3>
+      <p>{{ item.location or "Not provided" }}</p>
+    </div>
+
+    <div class="field">
+      <h3>Date lost or found</h3>
+      {% if item.date %}
+        <p>
+          <time datetime="{{ item.date.strftime('%Y-%m-%d') }}">
+            {{ item.date.strftime('%B %d, %Y') }}
+          </time>
+        </p>
+      {% else %}
+        <p>Not provided</p>
+      {% endif %}
+    </div>
+
+    <div class="field">
+      <h3>Contact</h3>
+      <p>{{ item.contact or "Not provided" }}</p>
+    </div>
+
+    <div class="field">
+      <h3>Status</h3>
+      <p>{{ item.status | capitalize }}</p>
+    </div>
+
+    {#
+      Enable this Edit button after Emma's edit_item route is merged.
+
+      <div class="field">
+        <a
+          class="button"
+          href="{{ url_for('edit_item', item_id=item['_id']) }}"
+        >
+          Edit post
+        </a>
+      </div>
+    #}
+
+    <a
+      class="button button-danger"
+      href="{{ url_for('delete_item', item_id=item['_id']) }}"
+    >
+      Delete post
+    </a>
+  </article>
+{% endblock %}
