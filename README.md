@@ -71,7 +71,16 @@ Then fill in the real values:
 
 The `.env` file contains private credentials and must never be committed. It is already listed in `.gitignore`.
 
-### 5. Run the app
+### 5. (Optional) Load sample data
+
+```bash
+python seed.py
+python seed.py --reset
+```
+
+The database is shared by the team, so only use `--reset` if everyone agrees.
+
+### 6. Run the app
 
 ```bash
 python app.py
