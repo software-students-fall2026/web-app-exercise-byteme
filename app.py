@@ -61,7 +61,7 @@ def get_item_or_404(item_id):
 
     return item
 
-#gets the item and sends it to detail.html
+# gets the item and sends it to detail.html
 @app.route("/items/<item_id>", methods=["GET"])
 def item_detail(item_id): 
     #display one item's details
@@ -70,7 +70,7 @@ def item_detail(item_id):
     return render_template("detail.html", item=item)
 
 
-#shows confirmation on GET. On POST, it deletes the item and sends to the user home
+# shows confirmation on GET. On POST, it deletes the item and sends to the user home
 @app.route("/items/<item_id>/delete", methods=["GET", "POST"])
 def delete_item(item_id): 
     #show deletion confirmation, then delete only after submission
@@ -84,15 +84,18 @@ def delete_item(item_id):
 
 # --C: add + edit ---
 
+# adds new item: GET shows the empty form, POST saves the new item
 @app.route("/items/new", methods=["GET", "POST"])
 def add_item():
     if request.method == "POST":
         form = request.form
-        # ensures all required fields are present
+
+        # ensures all required fields are present or shows an error
         for field in REQUIRED_FIELDS:
             if not form.get(field):
                 return render_template("add.html", form=form, error=f"Field '{field}' is required.")
 
+        # ensures dropdown values are real options
         if form["type"] not in ITEM_TYPES or form["building"] not in BUILDINGS:
             return render_template("add.html", form=form, error="Invalid type or building.")
 
@@ -112,10 +115,12 @@ def add_item():
         }
         result = items.insert_one(item)
         flash("Post created!", "success")
+        # go to new post's detail page
         return redirect(url_for("item_detail", item_id=str(result.inserted_id)))
-
+    # if GET request, empty form
     return render_template("add.html", form={}, error=None)
 
+# edits existing item which reuses add.html and posts to this route instead of creating a new post
 @app.route("/items/<item_id>/edit", methods=["GET", "POST"])
 def edit_item(item_id):
     # get the item to edit or return 404 if not found
@@ -123,15 +128,19 @@ def edit_item(item_id):
 
     if request.method == "POST":
         form = request.form
-        # edits required fields
+
+        # same validation as add_item
         for field in REQUIRED_FIELDS:
             if not form.get(field):
-                return render_template("add.html", form=form, error=f"Field '{field}' is required.")
+                return render_template("add.html", form=form, item=item, error=f"Field '{field}' is required.")
 
         if form["type"] not in ITEM_TYPES or form["building"] not in BUILDINGS:
-            return render_template("add.html", form=form, error="Invalid type or building.")
+            return render_template("add.html", form=form, item=item,error="Invalid type or building.")
 
-        now = datetime.now()   
+        now = datetime.now()
+        item_date = datetime.strptime(form["date"], "%Y-%m-%d")   
+
+        # update the item in the database
         items.update_one(
             {"_id": item["_id"]},
             {"$set": {
@@ -141,12 +150,12 @@ def edit_item(item_id):
                 "category": form.get("category"),
                 "building": form.get("building"),
                 "location": form.get("location"),
-                "date": item["date"],
+                "date": item_date,
                 "contact": form["contact"],
-                "status": "open",
                 "updated_at": now,
         }},
         )
+        flash("Post updated!", "success")
         return redirect(url_for("item_detail", item_id=item_id))
 
     # if GET request, render the edit form with the current item data
