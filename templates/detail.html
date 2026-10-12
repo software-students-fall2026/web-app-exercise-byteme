@@ -59,18 +59,15 @@
       <p>{{ item.status | capitalize }}</p>
     </div>
 
-    {#
-      Enable this Edit button after Emma's edit_item route is merged.
+    <div class="field">
+      <a
+        class="button"
+        href="{{ url_for('edit_item', item_id=item['_id']) }}"
+      >
+        Edit post
+      </a>
+    </div>
 
-      <div class="field">
-        <a
-          class="button"
-          href="{{ url_for('edit_item', item_id=item['_id']) }}"
-        >
-          Edit post
-        </a>
-      </div>
-    #}
 
     <a
       class="button button-danger"

@@ -4,10 +4,13 @@ import pymongo
 from bson.errors import InvalidId
 from bson.objectid import ObjectId
 from dotenv import load_dotenv
-from flask import Flask, render_template, abort, redirect, request, url_for
+from flask import Flask, render_template, abort, redirect, request, url_for, flash
+from datetime import datetime
 import re
 
 from constants import BUILDINGS, CATEGORIES, ITEM_TYPES, STATUSES
+
+REQUIRED_FIELDS = ["type", "title", "building", "date", "contact"]
 
 load_dotenv()
 
@@ -48,7 +51,6 @@ def home():
 
 # --B: detail + delete ---
 
-
 # this function is for finding item. Returns 404 if its ID is invalid or missing
 def get_item_or_404(item_id):
     "Find an item, or return a 404 if its ID is invalid or missing."
@@ -64,7 +66,7 @@ def get_item_or_404(item_id):
 
     return item
 
-#gets the item and sends it to detail.html
+# gets the item and sends it to detail.html
 @app.route("/items/<item_id>", methods=["GET"])
 def item_detail(item_id): 
     #display one item's details
@@ -73,7 +75,7 @@ def item_detail(item_id):
     return render_template("detail.html", item=item)
 
 
-#shows confirmation on GET. On POST, it deletes the item and sends to the user home
+# shows confirmation on GET. On POST, it deletes the item and sends to the user home
 @app.route("/items/<item_id>/delete", methods=["GET", "POST"])
 def delete_item(item_id): 
     #show deletion confirmation, then delete only after submission
@@ -84,6 +86,87 @@ def delete_item(item_id):
         return redirect(url_for("home"))
 
     return render_template("delete.html", item=item)
+
+# --C: add + edit ---
+
+# adds new item: GET shows the empty form, POST saves the new item
+@app.route("/items/new", methods=["GET", "POST"])
+def add_item():
+    if request.method == "POST":
+        form = request.form
+
+        # ensures all required fields are present or shows an error
+        for field in REQUIRED_FIELDS:
+            if not form.get(field):
+                return render_template("add.html", form=form, error=f"Field '{field}' is required.")
+
+        # ensures dropdown values are real options
+        if form["type"] not in ITEM_TYPES or form["building"] not in BUILDINGS:
+            return render_template("add.html", form=form, error="Invalid type or building.")
+
+        now = datetime.now()   
+        item = {
+            "type": form["type"],
+            "title": form["title"],
+            "description": form["description"],
+            "category": form["category"],
+            "building": form["building"],
+            "location": form["location"],
+            "date": datetime.strptime(form["date"], "%Y-%m-%d"),
+            "contact": form["contact"],
+            "status": "open",
+            "created_at": now,
+            "updated_at": now,
+        }
+        result = items.insert_one(item)
+        flash("Post created!", "success")
+        # go to new post's detail page
+        return redirect(url_for("item_detail", item_id=str(result.inserted_id)))
+    # if GET request, empty form
+    return render_template("add.html", form={}, error=None)
+
+# edits existing item which reuses add.html and posts to this route instead of creating a new post
+@app.route("/items/<item_id>/edit", methods=["GET", "POST"])
+def edit_item(item_id):
+    # get the item to edit or return 404 if not found
+    item=get_item_or_404(item_id)
+
+    if request.method == "POST":
+        form = request.form
+
+        # same validation as add_item
+        for field in REQUIRED_FIELDS:
+            if not form.get(field):
+                return render_template("add.html", form=form, item=item, error=f"Field '{field}' is required.")
+
+        if form["type"] not in ITEM_TYPES or form["building"] not in BUILDINGS:
+            return render_template("add.html", form=form, item=item,error="Invalid type or building.")
+
+        now = datetime.now()
+        item_date = datetime.strptime(form["date"], "%Y-%m-%d")   
+
+        # update the item in the database
+        items.update_one(
+            {"_id": item["_id"]},
+            {"$set": {
+                "type": form["type"],
+                "title": form["title"],
+                "description": form.get("description"),
+                "category": form.get("category"),
+                "building": form.get("building"),
+                "location": form.get("location"),
+                "date": item_date,
+                "contact": form["contact"],
+                "status": form.get("status"),
+                "updated_at": now,
+        }},
+        )
+        flash("Post updated!", "success")
+        return redirect(url_for("item_detail", item_id=item_id))
+
+    # if GET request, render the edit form with the current item data
+    form = {**item, "date": item["date"].strftime("%Y-%m-%d")}
+    return render_template("add.html", form=form, item = item, error=None)
 
 
 # --- D: search page ---

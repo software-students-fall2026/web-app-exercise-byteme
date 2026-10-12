@@ -118,6 +118,7 @@ body {
   text-align: center;
   text-decoration: none;
   cursor: pointer;
+  margin-bottom: 12px;
 }
 
 .button-danger {

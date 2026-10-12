@@ -8,6 +8,8 @@
     {% endfor %}
   </nav>
 
+  <a class="button" href="{{ url_for('add_item') }}">Add Post</a>
+
   {% if items %}
     {% for item in items %}
       <a
