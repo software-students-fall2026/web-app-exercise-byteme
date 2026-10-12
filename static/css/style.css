@@ -200,3 +200,10 @@ body {
   color: var(--gray);
   text-align: center;
 }
+
+.button-inline {
+  display: inline-block;
+  width: auto;
+  padding: 10px 24px;
+  margin-top: 8px;
+}

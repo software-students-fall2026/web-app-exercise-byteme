@@ -6,6 +6,7 @@ from bson.objectid import ObjectId
 from dotenv import load_dotenv
 from flask import Flask, render_template, abort, redirect, request, url_for, flash
 from datetime import datetime
+import re
 
 from constants import BUILDINGS, CATEGORIES, ITEM_TYPES, STATUSES
 
@@ -29,6 +30,11 @@ def inject_constants():
         "CATEGORIES": CATEGORIES,
         "BUILDINGS": BUILDINGS,
     }
+
+@app.errorhandler(404)
+def page_not_found(error):
+    """Show our own styled page instead of Flask's default 404 page."""
+    return render_template("404.html"), 404
 
 # --- A: home / list page ---
 @app.route("/")
@@ -162,6 +168,45 @@ def edit_item(item_id):
     form = {**item, "date": item["date"].strftime("%Y-%m-%d")}
     return render_template("add.html", form=form, item = item, error=None)
 
+
+
+# --- D: search page ---
+@app.route("/search", methods=["GET"])
+def search():
+    """Search items by keyword, type, category, and building."""
+    keyword = request.args.get("q", "").strip()
+    item_type = request.args.get("type", "")
+    category = request.args.get("category", "")
+    building = request.args.get("building", "")
+
+    query = {}
+
+    # Keyword search: title or description
+    if keyword:
+        safe_keyword = re.escape(keyword)
+        query["$or"] = [
+            {"title": {"$regex": safe_keyword, "$options": "i"}},
+            {"description": {"$regex": safe_keyword, "$options": "i"}}
+        ]
+    
+    # Exact match
+    if item_type in ITEM_TYPES: query["type"] = item_type
+    if category in CATEGORIES: query["category"] = category
+    if building in BUILDINGS: query["building"] = building
+
+    # Retrieve matching items, newest first
+    results = items.find(query).sort(
+        "created_at", pymongo.DESCENDING
+    ).limit(50)
+
+    return render_template(
+        "search.html",
+        items=list(results),
+        keyword=keyword,
+        selected_type=item_type,
+        selected_category=category,
+        selected_building=building
+    )
 
 
 if __name__ == "__main__":
