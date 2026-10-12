@@ -51,7 +51,6 @@ def home():
 
 # --B: detail + delete ---
 
-
 # this function is for finding item. Returns 404 if its ID is invalid or missing
 def get_item_or_404(item_id):
     "Find an item, or return a 404 if its ID is invalid or missing."
@@ -158,6 +157,7 @@ def edit_item(item_id):
                 "location": form.get("location"),
                 "date": item_date,
                 "contact": form["contact"],
+                "status": form.get("status"),
                 "updated_at": now,
         }},
         )
@@ -167,7 +167,6 @@ def edit_item(item_id):
     # if GET request, render the edit form with the current item data
     form = {**item, "date": item["date"].strftime("%Y-%m-%d")}
     return render_template("add.html", form=form, item = item, error=None)
-
 
 
 # --- D: search page ---

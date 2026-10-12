@@ -77,6 +77,20 @@
         value="{{ form.get('contact') }}" required />
       </div>
 
+    {% if item %}
+        <div class="field">
+            <label for="status">Status</label>
+            <select name="status" id="status" required>
+                <option value=""> ----choose----</option>
+                    {% for s in STATUSES %}
+                        <option value="{{ s }}" {% if form.get('status') == s %}selected{% endif %}>{{ s }}</option>
+                    {% endfor %}
+            </select>
+        </div>
+
+    {% endif %}
+
+
       <button type="submit" class="button">{{ 'Save' if item else 'Add' }}</button>
 
     <a
