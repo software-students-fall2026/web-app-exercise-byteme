@@ -4,9 +4,12 @@ import pymongo
 from bson.errors import InvalidId
 from bson.objectid import ObjectId
 from dotenv import load_dotenv
-from flask import Flask, render_template, abort, redirect, request, url_for
+from flask import Flask, render_template, abort, redirect, request, url_for, flash
+from datetime import datetime
 
 from constants import BUILDINGS, CATEGORIES, ITEM_TYPES, STATUSES
+
+REQUIRED_FIELDS = ["type", "title", "building", "date", "contact"]
 
 load_dotenv()
 
@@ -78,6 +81,78 @@ def delete_item(item_id):
         return redirect(url_for("home"))
 
     return render_template("delete.html", item=item)
+
+# --C: add + edit ---
+
+@app.route("/items/new", methods=["GET", "POST"])
+def add_item():
+    if request.method == "POST":
+        form = request.form
+        # ensures all required fields are present
+        for field in REQUIRED_FIELDS:
+            if not form.get(field):
+                return render_template("add.html", form=form, error=f"Field '{field}' is required.")
+
+        if form["type"] not in ITEM_TYPES or form["building"] not in BUILDINGS:
+            return render_template("add.html", form=form, error="Invalid type or building.")
+
+        now = datetime.now()   
+        item = {
+            "type": form["type"],
+            "title": form["title"],
+            "description": form["description"],
+            "category": form["category"],
+            "building": form["building"],
+            "location": form["location"],
+            "date": datetime.strptime(form["date"], "%Y-%m-%d"),
+            "contact": form["contact"],
+            "status": "open",
+            "created_at": now,
+            "updated_at": now,
+        }
+        result = items.insert_one(item)
+        flash("Post created!", "success")
+        return redirect(url_for("item_detail", item_id=str(result.inserted_id)))
+
+    return render_template("add.html", form={}, error=None)
+
+@app.route("/items/<item_id>/edit", methods=["GET", "POST"])
+def edit_item(item_id):
+    # get the item to edit or return 404 if not found
+    item=get_item_or_404(item_id)
+
+    if request.method == "POST":
+        form = request.form
+        # edits required fields
+        for field in REQUIRED_FIELDS:
+            if not form.get(field):
+                return render_template("add.html", form=form, error=f"Field '{field}' is required.")
+
+        if form["type"] not in ITEM_TYPES or form["building"] not in BUILDINGS:
+            return render_template("add.html", form=form, error="Invalid type or building.")
+
+        now = datetime.now()   
+        items.update_one(
+            {"_id": item["_id"]},
+            {"$set": {
+                "type": form["type"],
+                "title": form["title"],
+                "description": form.get("description"),
+                "category": form.get("category"),
+                "building": form.get("building"),
+                "location": form.get("location"),
+                "date": item["date"],
+                "contact": form["contact"],
+                "status": "open",
+                "updated_at": now,
+        }},
+        )
+        return redirect(url_for("item_detail", item_id=item_id))
+
+    # if GET request, render the edit form with the current item data
+    form = {**item, "date": item["date"].strftime("%Y-%m-%d")}
+    return render_template("add.html", form=form, item = item, error=None)
+
 
 
 if __name__ == "__main__":
