@@ -28,6 +28,11 @@ def inject_constants():
         "BUILDINGS": BUILDINGS,
     }
 
+@app.errorhandler(404)
+def page_not_found(error):
+    """Show our own styled page instead of Flask's default 404 page."""
+    return render_template("404.html"), 404
+
 # --- A: home / list page ---
 @app.route("/")
 def home():
