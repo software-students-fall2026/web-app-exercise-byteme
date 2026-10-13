@@ -18,7 +18,9 @@ Campus Lost & Found helps NYU students and staff quickly report, search for, and
 User stories are tracked as [GitHub Issues](https://github.com/software-students-fall2026/web-app-exercise-byteme/issues).
 
 ## Task boards
-pass
+
+- [Team ByteMe - Sprint 1](https://github.com/orgs/software-students-fall2026/projects/3)
+- [Team ByteMe - Sprint 2](https://github.com/orgs/software-students-fall2026/projects/7)
 
 ## Steps necessary to run the software
 
@@ -35,7 +37,25 @@ git clone https://github.com/software-students-fall2026/web-app-exercise-byteme.
 cd web-app-exercise-byteme
 ```
 
-### 3. Create a virtual environment and install dependencies
+### 3. Run the course setup script (once per clone)
+
+This activates the repository's git hooks and checks your git name and email, as required by the course instructions.
+
+macOS / Linux:
+
+```bash
+python3 .automations/setup.py
+```
+
+Windows:
+
+```powershell
+python .automations/setup.py
+```
+
+Fix any problems it reports before continuing.
+
+### 4. Create a virtual environment and install dependencies
 
 macOS / Linux:
 
@@ -53,7 +73,7 @@ python -m venv .venv
 pip install -r requirements.txt
 ```
 
-### 4. Configure environment variables
+### 5. Configure environment variables
 
 Create a file named `.env` in the project root. Use `env.example` as a template:
 
@@ -71,16 +91,16 @@ Then fill in the real values:
 
 The `.env` file contains private credentials and must never be committed. It is already listed in `.gitignore`.
 
-### 5. (Optional) Load sample data
+### 6. (Optional) Load sample data
 
 ```bash
-python seed.py
-python seed.py --reset
+python seed.py          # add 8 sample posts
+python seed.py --reset  # delete ALL posts first (asks for confirmation), then add the samples
 ```
 
-The database is shared by the team, so only use `--reset` if everyone agrees.
+The database is shared by the whole team, so only one person needs to run this, and `--reset` should only be used if everyone agrees.
 
-### 6. Run the app
+### 7. Run the app
 
 ```bash
 python app.py
@@ -91,6 +111,17 @@ Open http://127.0.0.1:8000 in a browser.
 The app is designed for phones. On a computer, use your browser's mobile view: in Chrome, open DevTools (`Cmd + Option + I` / `Ctrl + Shift + I`) and click "Toggle device toolbar".
 
 > If port 8000 is already in use on your machine, change the port in the last line of `app.py`.
+
+## Pages
+
+| Page | URL | Description |
+|---|---|---|
+| Home | `/` | Recent posts, with All / Lost / Found filter tabs |
+| Item detail | `/items/<id>` | All information about one post |
+| Post an item | `/items/new` | Form to report a lost or found item |
+| Edit item | `/items/<id>/edit` | Update a post or mark it as claimed |
+| Delete item | `/items/<id>/delete` | Confirm and delete a post |
+| Search | `/search` | Search by keyword, type, category and building |
 
 ## Data model
 
