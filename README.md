@@ -20,7 +20,6 @@ User stories are tracked as [GitHub Issues](https://github.com/software-students
 ## Task boards
 
 - [Team ByteMe - Sprint 1](https://github.com/orgs/software-students-fall2026/projects/3)
-- [Team ByteMe - Sprint 2](https://github.com/orgs/software-students-fall2026/projects/7)
 
 ## Steps necessary to run the software
 
