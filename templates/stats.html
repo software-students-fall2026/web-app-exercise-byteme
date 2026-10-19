@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}Stats – Campus Lost &amp; Found{% endblock %}
+
+{% block content %}
+  <h2>Campus stats</h2>
+
+  <div class="stats-grid">
+    <div class="stat stat-total">
+      <span class="stat-number">{{ total }}</span>
+      <span class="stat-label">Total posts</span>
+    </div>
+    <div class="stat stat-lost">
+      <span class="stat-number">{{ lost }}</span>
+      <span class="stat-label">Lost</span>
+    </div>
+    <div class="stat stat-found">
+      <span class="stat-number">{{ found }}</span>
+      <span class="stat-label">Found</span>
+    </div>
+  </div>
+
+  {% if total == 0 %}
+    <p class="empty">No posts yet, so there's nothing to count.</p>
+  {% endif %}
+{% endblock %}

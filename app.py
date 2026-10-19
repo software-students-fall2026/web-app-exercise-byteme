@@ -36,7 +36,7 @@ def page_not_found(error):
     """Show our own styled page instead of Flask's default 404 page."""
     return render_template("404.html"), 404
 
-# --- A: home / list page ---
+#A: home / list page
 @app.route("/")
 def home():
     """List recent posts, optionally filtered by ?type=lost or ?type=found."""
@@ -49,7 +49,7 @@ def home():
     return render_template("index.html", items=list(recent), active_type=item_type)
 
 
-# --B: detail + delete ---
+#B: detail + delete
 
 # this function is for finding item. Returns 404 if its ID is invalid or missing
 def get_item_or_404(item_id):
@@ -87,7 +87,7 @@ def delete_item(item_id):
 
     return render_template("delete.html", item=item)
 
-# --C: add + edit ---
+#C: add + edit
 
 # adds new item: GET shows the empty form, POST saves the new item
 @app.route("/items/new", methods=["GET", "POST"])
@@ -169,7 +169,7 @@ def edit_item(item_id):
     return render_template("add.html", form=form, item = item, error=None)
 
 
-# --- D: search page ---
+#D: search page
 @app.route("/search", methods=["GET"])
 def search():
     """Search items by keyword, type, category, and building."""
@@ -207,6 +207,14 @@ def search():
         selected_building=building
     )
 
+#A: stats page
+@app.route("/stats")
+def stats():
+    """Show summary numbers about all posts."""
+    total = items.count_documents({})
+    lost = items.count_documents({"type": "lost"})
+    found = items.count_documents({"type": "found"})
+    return render_template("stats.html", total=total, lost=lost, found=found)
 
 if __name__ == "__main__":
     app.run(port=8000, debug=True)
