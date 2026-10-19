@@ -20,6 +20,26 @@
     </div>
   </div>
 
+    <h3>Status</h3>
+
+  <div class="stats-grid">
+    <div class="stat">
+      <span class="stat-number">{{ open_count }}</span>
+      <span class="stat-label">Open</span>
+    </div>
+    <div class="stat stat-claimed">
+      <span class="stat-number">{{ claimed }}</span>
+      <span class="stat-label">Claimed</span>
+    </div>
+  </div>
+
+  <div class="progress-card">
+    <p><strong>{{ claimed_pct }}%</strong> of items have been returned to their owners</p>
+    <div class="progress-bar">
+      <div class="progress-fill" style="width: {{ claimed_pct }}%"></div>
+    </div>
+  </div>
+
   {% if total == 0 %}
     <p class="empty">No posts yet, so there's nothing to count.</p>
   {% endif %}
