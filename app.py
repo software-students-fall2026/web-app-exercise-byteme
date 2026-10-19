@@ -229,7 +229,21 @@ def stats():
     total = items.count_documents({})
     lost = items.count_documents({"type": "lost"})
     found = items.count_documents({"type": "found"})
-    return render_template("stats.html", total=total, lost=lost, found=found)
+
+    open_count = items.count_documents({"status": "open"})
+    claimed = items.count_documents({"status": "claimed"})
+    # avoid dividing by zero when there are no posts yet
+    claimed_pct = round(claimed / total * 100) if total else 0
+
+    return render_template(
+        "stats.html",
+        total=total,
+        lost=lost,
+        found=found,
+        open_count=open_count,
+        claimed=claimed,
+        claimed_pct=claimed_pct,
+    )
 
 if __name__ == "__main__":
     app.run(port=8000, debug=True)

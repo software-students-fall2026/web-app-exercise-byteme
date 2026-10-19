@@ -246,3 +246,31 @@ body {
 .stat-found .stat-number {
   color: var(--green);
 }
+
+.stat-claimed .stat-number {
+  color: var(--purple);
+}
+
+.progress-card {
+  margin-bottom: 16px;
+  padding: 16px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.progress-card p {
+  margin: 0 0 10px;
+}
+
+.progress-bar {
+  height: 10px;
+  border-radius: 999px;
+  background: var(--border);
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--purple);
+}
