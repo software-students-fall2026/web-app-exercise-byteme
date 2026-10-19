@@ -79,4 +79,26 @@
       Delete post
     </a>
   </article>
+
+  
+
+  <section aria-labelledby="possible-matches-heading">
+    <h2 id="possible-matches-heading">Possible matches</h2>
+    <p>Open posts of the opposite type in the same category and building.</p>
+
+    {% for match in possible_matches %}
+      <a
+        class="card"
+        href="{{ url_for('item_detail', item_id=match['_id']) }}"
+      >
+        <span class="badge badge-{{ match.type }}">
+          {{ match.type | capitalize }}
+        </span>
+        <h3>{{ match.title }}</h3>
+        <p>{{ match.category }} · {{ match.building }}</p>
+      </a>
+    {% else %}
+      <p class="empty">No possible matches yet.</p>
+    {% endfor %}
+  </section>
 {% endblock %}
