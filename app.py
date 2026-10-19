@@ -72,7 +72,22 @@ def item_detail(item_id):
     #display one item's details
     item=get_item_or_404(item_id)
 
-    return render_template("detail.html", item=item)
+    possible_matches = []
+    opposite_type = {"lost": "found", "found": "lost"}.get(item.get("type"))
+    if opposite_type and item.get("category") and item.get("building"):
+        query = {
+            "type": opposite_type,
+            "status": "open",
+            "category": item["category"],
+            "building": item["building"],
+        }
+        possible_matches = list(
+            items.find(query).sort("created_at", pymongo.DESCENDING)
+        )
+
+    return render_template(
+        "detail.html", item=item, possible_matches=possible_matches
+    )
 
 
 # shows confirmation on GET. On POST, it deletes the item and sends to the user home
