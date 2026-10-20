@@ -35,8 +35,7 @@
       
       <div class="field">
         <label for="description">Description</label>
-        <input type="text" id="description" name="description" 
-        value="{{ form.get('description') }}" />
+        <textarea id="description" name="description" rows="5">{{ form.get('description') or '' }}</textarea>
       </div>
 
       <div class="field">

@@ -98,6 +98,7 @@ def delete_item(item_id):
 
     if request.method=="POST": 
         items.delete_one({"_id": item["_id"]})
+        flash("Post deleted successfully.", "success")
         return redirect(url_for("home"))
 
     return render_template("delete.html", item=item)
