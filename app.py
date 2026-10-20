@@ -10,6 +10,13 @@ import re
 
 from constants import BUILDINGS, CATEGORIES, ITEM_TYPES, STATUSES
 
+
+# D: login function
+from flask_login import LoginManager
+from auth import init_auth_routes
+from user_model import User
+
+
 REQUIRED_FIELDS = ["type", "title", "building", "date", "contact"]
 
 load_dotenv()
@@ -20,6 +27,22 @@ app.secret_key = os.getenv("SECRET_KEY")
 client = pymongo.MongoClient(os.getenv("MONGO_URI"))
 db = client[os.getenv("MONGO_DBNAME")]
 items = db.items
+
+
+# D: login funciton
+users = db.users
+users.create_index("email", unique=True)
+
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = "auth.login"
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.find_by_id(users, user_id)
+
+app.register_blueprint(init_auth_routes(users))
+
 
 @app.context_processor
 def inject_constants():
