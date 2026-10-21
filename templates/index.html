@@ -2,10 +2,12 @@
 
 {% block content %}
   <nav class="tabs">
-    <a href="{{ url_for('home') }}" class="{{ 'active' if not active_type }}">All</a>
+    <a href="{{ url_for('home') }}" class="{{ 'active' if not active_type and not active_status }}">All</a>
     {% for t in ITEM_TYPES %}
       <a href="{{ url_for('home', type=t) }}" class="{{ 'active' if active_type == t }}">{{ t | capitalize }}</a>
     {% endfor %}
+    <a href="{{ url_for('home', status='claimed') }}" class="{{ 'active' if active_status == 'claimed' }}">Claimed</a>
+
   </nav>
 
   <a class="button" href="{{ url_for('add_item') }}">Add Post</a>
@@ -16,15 +18,21 @@
         class="card"
         href="{{ url_for('item_detail', item_id=item['_id']) }}"
       >
+        {% if item.status == 'claimed' %}
+        <span class="badge badge-claimed">
+          Claimed
+        </span>
+        {% else %}
         <span class="badge badge-{{ item.type }}">
           {{ item.type | capitalize }}
         </span>
+        {% endif %}
 
         <h3>{{ item.title }}</h3>
         <p>{{ item.category }} · {{ item.building }}</p>
       </a>
     {% endfor %}
   {% else %}
-    <p class="empty">No {{ active_type or "" }} posts yet.</p>
+    <p class="empty">No {{ active_type or active_status or "" }} posts yet.</p>
   {% endif %}
 {% endblock %}

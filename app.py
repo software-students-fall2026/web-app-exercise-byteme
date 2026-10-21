@@ -62,14 +62,27 @@ def page_not_found(error):
 #A: home / list page
 @app.route("/")
 def home():
-    """List recent posts, optionally filtered by ?type=lost or ?type=found."""
+    """List recent posts, optionally filtered by ?type=lost or ?type=found or ?type=claimed."""
     item_type = request.args.get("type")
     if item_type not in ITEM_TYPES:
         item_type = None  # ignore missing or invalid values, show everything
 
-    query = {"type": item_type} if item_type else {}
+    item_status = request.args.get("status")
+    if item_status not in STATUSES:
+        item_status = None  # ignore missing or invalid values, show everything
+
+    query = {}
+
+    if item_status == "claimed":
+        query["status"] = "claimed"
+        item_type = None
+    else:
+        query["status"] = {"$ne": "claimed"}
+        if item_type:
+            query["type"] = item_type
+
     recent = items.find(query).sort("created_at", pymongo.DESCENDING).limit(50)
-    return render_template("index.html", items=list(recent), active_type=item_type)
+    return render_template("index.html", items=list(recent), active_type=item_type, active_status=item_status)
 
 
 #B: detail + delete
@@ -197,6 +210,7 @@ def edit_item(item_id):
                 "date": item_date,
                 "contact": form["contact"],
                 "status": form.get("status"),
+                "claimed_contact": form.get("claimed_contact"),
                 "updated_at": now,
         }},
         )
