@@ -229,10 +229,19 @@ body {
 }
 
 .detail {
+  overflow-wrap: anywhere;
   padding: 16px;
   background: #fff;
   border: 1px solid var(--border);
   border-radius: var(--radius);
+}
+
+.detail-description {
+  white-space: pre-wrap;
+}
+
+.field textarea {
+  resize: vertical;
 }
 
 .flash {
