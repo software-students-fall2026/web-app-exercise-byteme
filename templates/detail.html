@@ -23,12 +23,24 @@
 
     <div class="field">
       <h3>Category</h3>
-      <p>{{ item.category or "Not provided" }}</p>
+      <p>
+        {% if item.category %}
+          <a href="{{ url_for('search', category=item.category) }}">{{ item.category }}</a>
+        {% else %}
+          Not provided
+        {% endif %}
+      </p>
     </div>
 
     <div class="field">
       <h3>Building</h3>
-      <p>{{ item.building or "Not provided" }}</p>
+      <p>
+        {% if item.building %}
+          <a href="{{ url_for('search', building=item.building) }}">{{ item.building }}</a>
+        {% else %}
+          Not provided
+        {% endif %}
+      </p>
     </div>
 
     <div class="field">
