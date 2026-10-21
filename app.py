@@ -247,6 +247,17 @@ def search():
     )
 
 #A: stats page
+
+def count_lost_by(field, limit=5):
+    """Count lost posts grouped by a field (e.g. building), most common first."""
+    pipeline = [
+        {"$match": {"type": "lost"}},                               # 1. only lost posts
+        {"$group": {"_id": "$" + field, "count": {"$sum": 1}}},     # 2. one group per value, count posts
+        {"$sort": {"count": -1, "_id": 1}},                         # 3. biggest count first, ties A-Z
+        {"$limit": limit},                                          # 4. keep the top few
+    ]
+    return list(items.aggregate(pipeline))
+
 @app.route("/stats")
 def stats():
     """Show summary numbers about all posts."""
@@ -258,6 +269,8 @@ def stats():
     claimed = items.count_documents({"status": "claimed"})
     # avoid dividing by zero when there are no posts yet
     claimed_pct = round(claimed / total * 100) if total else 0
+    top_buildings = count_lost_by("building")
+    top_categories = count_lost_by("category")
 
     return render_template(
         "stats.html",
@@ -267,6 +280,8 @@ def stats():
         open_count=open_count,
         claimed=claimed,
         claimed_pct=claimed_pct,
+        top_buildings=top_buildings,
+        top_categories=top_categories,
     )
 
 if __name__ == "__main__":
