@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Register · Campus Lost &amp; Found{% endblock %}
+{% block content %}
+  <h1>Create Account</h1>
+
+  <p>
+    Register with your NYU email address to create
+    and manage lost and found posts.
+  </p>
+  
+  <form action="{{ url_for('auth.register') }}" method="POST">
+    <div class="field">
+      <label for="email">NYU Email</label>
+      <input
+        type="email"
+        id="email"
+        name="email"
+        placeholder="netid@nyu.edu"
+        value="{{ email | default('') }}"
+        autocomplete="email"
+        required
+      >
+    </div>
+
+    <div class="field">
+      <label for="password">Password</label>
+      <input
+        type="password"
+        id="password"
+        name="password"
+        placeholder="At least 8 characters"
+        minlength="8"
+        autocomplete="new-password"
+        required
+      >
+    </div>
+
+    <div class="field">
+      <label for="confirm_password">Confirm Password</label>
+      <input
+        type="password"
+        id="confirm_password"
+        name="confirm_password"
+        placeholder="Enter your password again"
+        minlength="8"
+        autocomplete="new-password"
+        required
+      >
+    </div>
+
+    <button type="submit" class="button">
+      Create Account
+    </button>
+
+  </form>
+
+  <p style="text-align: center; margin-top: 20px;">
+    Already have an account?
+    <a href="{{ url_for('auth.login') }}">Log in</a>
+  </p>
+{% endblock %}

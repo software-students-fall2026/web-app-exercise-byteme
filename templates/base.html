@@ -1,29 +1,49 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{% block title %}Campus Lost &amp; Found{% endblock %}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
-  </head>
-  <body>
-    <header class="topbar">
-      <a class="brand" href="{{ url_for('home') }}">Campus Lost &amp; Found</a>
-    </header>
 
-    <main class="container">
-      {% with messages = get_flashed_messages(with_categories=true) %}
-        {% for category, message in messages %}
-          <div class="flash flash-{{ category }}">{{ message }}</div>
-        {% endfor %}
-      {% endwith %}
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{% block title %}Campus Lost &amp; Found{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
 
-      {% block content %}{% endblock %}
-    </main>
+<body>
+  <header class="topbar">
+    <a class="brand" href="{{ url_for('home') }}">Campus Lost &amp; Found</a>
+    <div class="auth-nav">
+      {% if current_user.is_authenticated %}
+      <span class="auth-user" title="{{ current_user.email }}">
+        {{ current_user.email.split('@')[0] }}
+      </span>
+      <form action="{{ url_for('auth.logout') }}" method="POST">
+        <button type="submit" class="auth-link">
+          Logout
+        </button>
+      </form>
+      {% else %}
+      <a href="{{ url_for('auth.login') }}" class="auth-link">Login</a>
+      <a href="{{ url_for('auth.register') }}" class="auth-link">Register</a>
+      {% endif %}
+    </div>
+  </header>
 
-    <nav class="bottom-nav">
-      <a href="{{ url_for('home') }}">Home</a>
-      <a href="{{ url_for('search') }}">Search</a>
-    </nav>
-  </body>
+
+  <main class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+    <div class="flash flash-{{ category }}">{{ message }}</div>
+    {% endfor %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+  </main>
+
+  <nav class="bottom-nav">
+    <a href="{{ url_for('home') }}">Home</a>
+    <a href="{{ url_for('search') }}">Search</a>
+    <a href="{{ url_for('stats') }}">Stats</a>
+  </nav>
+</body>
+
 </html>

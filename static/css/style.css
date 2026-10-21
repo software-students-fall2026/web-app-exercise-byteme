@@ -29,6 +29,12 @@ body {
   top: 0;
   padding: 14px 16px;
   background: var(--purple);
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  z-index: 10;
 }
 
 .brand {
@@ -37,6 +43,81 @@ body {
   font-size: 1.1rem;
   text-decoration: none;
 }
+
+/* Authentication navigation */
+.auth-nav {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.auth-nav form {
+  margin: 0;
+}
+
+.auth-link {
+  background: transparent;
+  border: none;
+  padding: 0;
+
+  color: #fff;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.auth-link:hover {
+  text-decoration: underline;
+}
+
+.auth-link:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 4px;
+  border-radius: 2px;
+}
+
+.auth-user {
+  color: #fff;
+  font-size: 13px;
+  font-weight: 500;
+
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* for mobile screens*/
+@media (max-width: 400px) {
+  .topbar {
+    gap: 8px;
+    padding: 12px;
+  }
+
+  .brand {
+    font-size: 0.95rem;
+    min-width: 0;
+  }
+
+  .auth-nav {
+    gap: 8px;
+  }
+
+  .auth-link,
+  .auth-user {
+    font-size: 12px;
+  }
+
+  .auth-user {
+    max-width: 65px;
+  }
+}
+
 
 .container {
   max-width: 480px;
@@ -148,10 +229,19 @@ body {
 }
 
 .detail {
+  overflow-wrap: anywhere;
   padding: 16px;
   background: #fff;
   border: 1px solid var(--border);
   border-radius: var(--radius);
+}
+
+.detail-description {
+  white-space: pre-wrap;
+}
+
+.field textarea {
+  resize: vertical;
 }
 
 .flash {
@@ -245,4 +335,32 @@ body {
 
 .stat-found .stat-number {
   color: var(--green);
+}
+
+.stat-claimed .stat-number {
+  color: var(--purple);
+}
+
+.progress-card {
+  margin-bottom: 16px;
+  padding: 16px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.progress-card p {
+  margin: 0 0 10px;
+}
+
+.progress-bar {
+  height: 10px;
+  border-radius: 999px;
+  background: var(--border);
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--purple);
 }
