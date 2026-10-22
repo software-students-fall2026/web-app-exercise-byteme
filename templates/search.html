@@ -3,19 +3,13 @@
 {% block title %}Search · Campus Lost &amp; Found{% endblock %}
 
 {% block content %}
-  <h1>Search Items</h1>
-  
+<h1>Search Items</h1>
+
 <form action="{{ url_for('search') }}" method="GET">
 
   <div class="field">
     <label for="q">Keyword</label>
-    <input
-      type="text"
-      id="q"
-      name="q"
-      placeholder="Search title or description..."
-      value="{{ keyword }}"
-    >
+    <input type="text" id="q" name="q" placeholder="Search title or description..." value="{{ keyword }}">
   </div>
 
   <div class="field">
@@ -23,10 +17,9 @@
     <select id="type" name="type">
       <option value="">Any</option>
       {% for t in ITEM_TYPES %}
-        <option value="{{ t }}"
-          {% if selected_type == t %}selected{% endif %}>
-          {{ t | capitalize }}
-        </option>
+      <option value="{{ t }}" {% if selected_type==t %}selected{% endif %}>
+        {{ t | capitalize }}
+      </option>
       {% endfor %}
     </select>
   </div>
@@ -36,10 +29,9 @@
     <select id="category" name="category">
       <option value="">Any</option>
       {% for c in CATEGORIES %}
-        <option value="{{ c }}"
-          {% if selected_category == c %}selected{% endif %}>
-          {{ c }}
-        </option>
+      <option value="{{ c }}" {% if selected_category==c %}selected{% endif %}>
+        {{ c }}
+      </option>
       {% endfor %}
     </select>
   </div>
@@ -49,10 +41,9 @@
     <select id="building" name="building">
       <option value="">Any</option>
       {% for b in BUILDINGS %}
-        <option value="{{ b }}"
-          {% if selected_building == b %}selected{% endif %}>
-          {{ b }}
-        </option>
+      <option value="{{ b }}" {% if selected_building==b %}selected{% endif %}>
+        {{ b }}
+      </option>
       {% endfor %}
     </select>
   </div>
@@ -63,22 +54,26 @@
 
 </form>
 
-  <h2>Results</h2>
-  {% if items %}
-    {% for item in items %}
-      <a
-        class="card"
-        href="{{ url_for('item_detail', item_id=item['_id']) }}"
-      >
-        <span class="badge badge-{{ item.type }}">
-          {{ item.type | capitalize }}
-        </span>
-
-        <h3>{{ item.title }}</h3>
-        <p>{{ item.category }} · {{ item.building }}</p>
-      </a>
-    {% endfor %}
+<h2>Results</h2>
+{% if items %}
+{% for item in items %}
+<a class="card" href="{{ url_for('item_detail', item_id=item['_id']) }}">
+  {% if item.status == 'claimed' %}
+  <span class="badge badge-claimed">
+    Claimed
+  </span>
   {% else %}
-    <p class="empty">No results found.</p>
+  <span class="badge badge-{{ item.type }}">
+    {{ item.type | capitalize }}
+  </span>
   {% endif %}
+
+  <h3>{{ item.title }}</h3>
+  <p>{{ item.category }} · {{ item.building }}</p>
+  <p>Posted by {{ item.author_name or "Unknown" }}</p>
+</a>
+{% endfor %}
+{% else %}
+<p class="empty">No results found.</p>
+{% endif %}
 {% endblock %}

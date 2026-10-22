@@ -12,7 +12,7 @@ from constants import BUILDINGS, CATEGORIES, ITEM_TYPES, STATUSES
 
 
 # D: login function
-from flask_login import LoginManager
+from flask_login import LoginManager, login_required, current_user
 from auth import init_auth_routes
 from user_model import User
 
@@ -120,20 +120,35 @@ def item_detail(item_id):
         possible_matches = list(
             items.find(query).sort("created_at", pymongo.DESCENDING)
         )
+    
+    is_owner = (
+        current_user.is_authenticated
+        and item.get("owner_id") == str(current_user.id)
+    )
 
     return render_template(
-        "detail.html", item=item, possible_matches=possible_matches
+        "detail.html", item=item, possible_matches=possible_matches, is_owner=is_owner
     )
+
+
+def require_item_owner(item):
+    if item.get("owner_id") != str(current_user.id):
+        abort(403)
 
 
 # shows confirmation on GET. On POST, it deletes the item and sends to the user home
 @app.route("/items/<item_id>/delete", methods=["GET", "POST"])
+@login_required
 def delete_item(item_id): 
     #show deletion confirmation, then delete only after submission
     item=get_item_or_404(item_id)
+    require_item_owner(item)
 
     if request.method=="POST": 
-        items.delete_one({"_id": item["_id"]})
+        items.delete_one({
+            "_id": item["_id"],
+            "owner_id": str(current_user.id)
+            })
         flash("Post deleted successfully.", "success")
         return redirect(url_for("home"))
 
@@ -143,6 +158,7 @@ def delete_item(item_id):
 
 # adds new item: GET shows the empty form, POST saves the new item
 @app.route("/items/new", methods=["GET", "POST"])
+@login_required
 def add_item():
     if request.method == "POST":
         form = request.form
@@ -169,6 +185,9 @@ def add_item():
             "status": "open",
             "created_at": now,
             "updated_at": now,
+
+            "owner_id": str(current_user.id),
+            "author_name": current_user.email.split("@")[0],
         }
         result = items.insert_one(item)
         flash("Post created!", "success")
@@ -179,9 +198,11 @@ def add_item():
 
 # edits existing item which reuses add.html and posts to this route instead of creating a new post
 @app.route("/items/<item_id>/edit", methods=["GET", "POST"])
+@login_required
 def edit_item(item_id):
     # get the item to edit or return 404 if not found
     item=get_item_or_404(item_id)
+    require_item_owner(item)
 
     if request.method == "POST":
         form = request.form
@@ -199,7 +220,9 @@ def edit_item(item_id):
 
         # update the item in the database
         items.update_one(
-            {"_id": item["_id"]},
+            {"_id": item["_id"],
+            "owner_id": str(current_user.id)
+            },
             {"$set": {
                 "type": form["type"],
                 "title": form["title"],
