@@ -1,119 +1,117 @@
 {% extends "base.html" %}
 
 {% block title %}
-  {{ item.title }} | Campus Lost &amp; Found
+{{ item.title }} | Campus Lost &amp; Found
 {% endblock %}
 
 {% block content %}
-  <a href="{{ url_for('home') }}">← Back to recent posts</a>
+<a href="{{ url_for('home') }}">← Back to recent posts</a>
 
-  <h1>Item details</h1>
+<h1>Item details</h1>
 
-  <article class="detail">
-    {% if item.status == 'claimed' %}
-      <span class="badge badge-claimed">
-        Claimed
-      </span>
-    {% else %}
-      <span class="badge badge-{{ item.type }}">
-        {{ item.type | capitalize }}
-      </span>
-    {% endif %}
+<article class="detail">
+  {% if item.status == 'claimed' %}
+  <span class="badge badge-claimed">
+    Claimed
+  </span>
+  {% else %}
+  <span class="badge badge-{{ item.type }}">
+    {{ item.type | capitalize }}
+  </span>
+  {% endif %}
 
-    <h2>{{ item.title }}</h2>
+  <h2>{{ item.title }}</h2>
 
-    <div class="field">
-      <h3>Description</h3>
-      <p class="detail-description">{{ item.description or "No description provided." }}</p>
-    </div>
+  <div class="field">
+    <h3>Posted by</h3>
+    <p>{{ item.author_name or "Unknown" }}</p>
+  </div>
 
-    <div class="field">
-      <h3>Category</h3>
-      <p>
-        {% if item.category %}
-          <a href="{{ url_for('search', category=item.category) }}">{{ item.category }}</a>
-        {% else %}
-          Not provided
-        {% endif %}
-      </p>
-    </div>
+  <div class="field">
+    <h3>Description</h3>
+    <p class="detail-description">{{ item.description or "No description provided." }}</p>
+  </div>
 
-    <div class="field">
-      <h3>Building</h3>
-      <p>
-        {% if item.building %}
-          <a href="{{ url_for('search', building=item.building) }}">{{ item.building }}</a>
-        {% else %}
-          Not provided
-        {% endif %}
-      </p>
-    </div>
-
-    <div class="field">
-      <h3>Location</h3>
-      <p>{{ item.location or "Not provided" }}</p>
-    </div>
-
-    <div class="field">
-      <h3>Date lost or found</h3>
-      {% if item.date %}
-        <p>
-          <time datetime="{{ item.date.strftime('%Y-%m-%d') }}">
-            {{ item.date.strftime('%B %d, %Y') }}
-          </time>
-        </p>
+  <div class="field">
+    <h3>Category</h3>
+    <p>
+      {% if item.category %}
+      <a href="{{ url_for('search', category=item.category) }}">{{ item.category }}</a>
       {% else %}
-        <p>Not provided</p>
+      Not provided
       {% endif %}
-    </div>
+    </p>
+  </div>
 
-    <div class="field">
-      <h3>Contact</h3>
-      <p>{{ item.contact or "Not provided" }}</p>
-    </div>
+  <div class="field">
+    <h3>Building</h3>
+    <p>
+      {% if item.building %}
+      <a href="{{ url_for('search', building=item.building) }}">{{ item.building }}</a>
+      {% else %}
+      Not provided
+      {% endif %}
+    </p>
+  </div>
 
-    <div class="field">
-      <h3>Status</h3>
-      <p>{{ item.status | capitalize }}</p>
-    </div>
+  <div class="field">
+    <h3>Location</h3>
+    <p>{{ item.location or "Not provided" }}</p>
+  </div>
 
-    <div class="field">
-      <a
-        class="button"
-        href="{{ url_for('edit_item', item_id=item['_id']) }}"
-      >
-        Edit post
-      </a>
-    </div>
-
-
-    <a
-      class="button button-danger"
-      href="{{ url_for('delete_item', item_id=item['_id']) }}"
-    >
-      Delete post
-    </a>
-  </article>
-
-  
-
-  <section aria-labelledby="possible-matches-heading">
-    <h2 id="possible-matches-heading">Possible matches</h2>
-    <p>Open posts of the opposite type in the same category and building.</p>
-
-    {% for match in possible_matches %}
-      <a
-        class="card"
-        href="{{ url_for('item_detail', item_id=match['_id']) }}"
-      >
-        <span class="badge badge-{{ match.type }}">
-          {{ match.type | capitalize }}
-        </span>
-        <h3>{{ match.title }}</h3>
-        <p>{{ match.category }} · {{ match.building }}</p>
-      </a>
+  <div class="field">
+    <h3>Date lost or found</h3>
+    {% if item.date %}
+    <p>
+      <time datetime="{{ item.date.strftime('%Y-%m-%d') }}">
+        {{ item.date.strftime('%B %d, %Y') }}
+      </time>
+    </p>
     {% else %}
-      <p class="empty">No possible matches yet.</p>
-    {% endfor %}
-  </section>
+    <p>Not provided</p>
+    {% endif %}
+  </div>
+
+  <div class="field">
+    <h3>Contact</h3>
+    <p>{{ item.contact or "Not provided" }}</p>
+  </div>
+
+  <div class="field">
+    <h3>Status</h3>
+    <p>{{ item.status | capitalize }}</p>
+  </div>
+
+  {% if is_owner %}
+  <div class="field">
+    <a class="button" href="{{ url_for('edit_item', item_id=item['_id']) }}">
+      Edit post
+    </a>
+  </div>
+
+  <a class="button button-danger" href="{{ url_for('delete_item', item_id=item['_id']) }}">
+    Delete post
+  </a>
+  {% endif %}
+
+</article>
+
+
+
+<section aria-labelledby="possible-matches-heading">
+  <h2 id="possible-matches-heading">Possible matches</h2>
+  <p>Open posts of the opposite type in the same category and building.</p>
+
+  {% for match in possible_matches %}
+  <a class="card" href="{{ url_for('item_detail', item_id=match['_id']) }}">
+    <span class="badge badge-{{ match.type }}">
+      {{ match.type | capitalize }}
+    </span>
+    <h3>{{ match.title }}</h3>
+    <p>{{ match.category }} · {{ match.building }}</p>
+  </a>
+  {% else %}
+  <p class="empty">No possible matches yet.</p>
+  {% endfor %}
+</section>
 {% endblock %}
