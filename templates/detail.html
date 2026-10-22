@@ -10,9 +10,15 @@
   <h1>Item details</h1>
 
   <article class="detail">
-    <span class="badge badge-{{ item.type }}">
-      {{ item.type | capitalize }}
-    </span>
+    {% if item.status == 'claimed' %}
+      <span class="badge badge-claimed">
+        Claimed
+      </span>
+    {% else %}
+      <span class="badge badge-{{ item.type }}">
+        {{ item.type | capitalize }}
+      </span>
+    {% endif %}
 
     <h2>{{ item.title }}</h2>
 

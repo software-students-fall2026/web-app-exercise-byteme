@@ -1,6 +1,8 @@
 :root {
   --purple: #57068c;
   --purple-light: #f2e9f8;
+  --blue: #0877f6;
+  --blue-light: #e1edf6;
   --red: #c62828;
   --red-light: #fdecea;
   --green: #2e7d32;
@@ -185,6 +187,12 @@ body {
   background: var(--green-light);
   color: var(--green);
 }
+
+.badge-claimed {
+  background: var(--blue-light);
+  color: var(--blue);
+}
+
 
 .button {
   display: block;
