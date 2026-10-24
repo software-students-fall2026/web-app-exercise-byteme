@@ -5,6 +5,7 @@ from bson.errors import InvalidId
 from bson.objectid import ObjectId
 from dotenv import load_dotenv
 from flask import Flask, render_template, abort, redirect, request, url_for, flash
+from flask_login import login_required, current_user
 from datetime import datetime
 import re
 
@@ -128,6 +129,7 @@ def item_detail(item_id):
 
 # shows confirmation on GET. On POST, it deletes the item and sends to the user home
 @app.route("/items/<item_id>/delete", methods=["GET", "POST"])
+@login_required
 def delete_item(item_id): 
     #show deletion confirmation, then delete only after submission
     item=get_item_or_404(item_id)
@@ -143,6 +145,7 @@ def delete_item(item_id):
 
 # adds new item: GET shows the empty form, POST saves the new item
 @app.route("/items/new", methods=["GET", "POST"])
+@login_required
 def add_item():
     if request.method == "POST":
         form = request.form
@@ -167,6 +170,7 @@ def add_item():
             "date": datetime.strptime(form["date"], "%Y-%m-%d"),
             "contact": form["contact"],
             "status": "open",
+            "user_id": current_user.get_id(),
             "created_at": now,
             "updated_at": now,
         }
@@ -179,6 +183,7 @@ def add_item():
 
 # edits existing item which reuses add.html and posts to this route instead of creating a new post
 @app.route("/items/<item_id>/edit", methods=["GET", "POST"])
+@login_required
 def edit_item(item_id):
     # get the item to edit or return 404 if not found
     item=get_item_or_404(item_id)
