@@ -11,6 +11,39 @@
       Are you sure you want to delete “{{ item.title }}”?
     </p>
 
+    <div class="field">
+      <h3>Title</h3>
+      <p>{{ item.title or "Not provided" }}</p>
+    </div>
+
+    <div class="field">
+      <h3>Type</h3>
+      <p>{{ item.type | capitalize if item.type else "Not provided" }}</p>
+    </div>
+
+    <div class="field">
+      <h3>Category</h3>
+      <p>{{ item.category or "Not provided" }}</p>
+    </div>
+
+    <div class="field">
+      <h3>Building</h3>
+      <p>{{ item.building or "Not provided" }}</p>
+    </div>
+
+    <div class="field">
+      <h3>Date lost or found</h3>
+      {% if item.date %}
+        <p>
+          <time datetime="{{ item.date.strftime('%Y-%m-%d') }}">
+            {{ item.date.strftime('%B %d, %Y') }}
+          </time>
+        </p>
+      {% else %}
+        <p>Not provided</p>
+      {% endif %}
+    </div>
+
     <p>This will permanently remove the post.</p>
 
     <form
@@ -19,7 +52,7 @@
       class="field"
     >
       <button type="submit" class="button button-danger">
-        Delete
+        Delete post
       </button>
     </form>
 

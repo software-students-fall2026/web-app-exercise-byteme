@@ -372,3 +372,23 @@ body {
   height: 100%;
   background: var(--purple);
 }
+
+.ranking {
+  list-style: none;
+  margin: 0 0 16px;
+  padding: 16px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.ranking li + li {
+  margin-top: 12px;
+}
+
+.ranking-label {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4px;
+  font-size: 0.95rem;
+}

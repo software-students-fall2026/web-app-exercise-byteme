@@ -40,6 +40,33 @@
     </div>
   </div>
 
+  {# reusable block: a ranked list with bars, used for buildings and categories #}
+  {% macro ranking(rows, empty_text) %}
+    {% if rows %}
+      <ul class="ranking">
+        {% for row in rows %}
+          <li>
+            <div class="ranking-label">
+              <span>{{ row["_id"] or "Unknown" }}</span>
+              <strong>{{ row["count"] }}</strong>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: {{ (row['count'] / rows[0]['count'] * 100) | round }}%"></div>
+            </div>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="empty">{{ empty_text }}</p>
+    {% endif %}
+  {% endmacro %}
+
+  <h3>Where things get lost</h3>
+  {{ ranking(top_buildings, "No lost posts yet.") }}
+
+  <h3>What gets lost most</h3>
+  {{ ranking(top_categories, "No lost posts yet.") }}
+
   {% if total == 0 %}
     <p class="empty">No posts yet, so there's nothing to count.</p>
   {% endif %}

@@ -30,6 +30,7 @@
 
         <h3>{{ item.title }}</h3>
         <p>{{ item.category }} · {{ item.building }}</p>
+        <p>Posted by {{ item.author_name or "Unknown" }}</p>
       </a>
     {% endfor %}
   {% else %}

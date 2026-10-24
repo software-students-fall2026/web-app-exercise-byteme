@@ -5,7 +5,6 @@ from bson.errors import InvalidId
 from bson.objectid import ObjectId
 from dotenv import load_dotenv
 from flask import Flask, render_template, abort, redirect, request, url_for, flash
-from flask_login import login_required, current_user
 from datetime import datetime
 import re
 
@@ -13,7 +12,7 @@ from constants import BUILDINGS, CATEGORIES, ITEM_TYPES, STATUSES
 
 
 # D: login function
-from flask_login import LoginManager
+from flask_login import LoginManager, login_required, current_user
 from auth import init_auth_routes
 from user_model import User
 
@@ -121,10 +120,20 @@ def item_detail(item_id):
         possible_matches = list(
             items.find(query).sort("created_at", pymongo.DESCENDING)
         )
+    
+    is_owner = (
+        current_user.is_authenticated
+        and item.get("owner_id") == str(current_user.id)
+    )
 
     return render_template(
-        "detail.html", item=item, possible_matches=possible_matches
+        "detail.html", item=item, possible_matches=possible_matches, is_owner=is_owner
     )
+
+
+def require_item_owner(item):
+    if item.get("owner_id") != str(current_user.id):
+        abort(403)
 
 
 # shows confirmation on GET. On POST, it deletes the item and sends to the user home
@@ -133,9 +142,13 @@ def item_detail(item_id):
 def delete_item(item_id): 
     #show deletion confirmation, then delete only after submission
     item=get_item_or_404(item_id)
+    require_item_owner(item)
 
     if request.method=="POST": 
-        items.delete_one({"_id": item["_id"]})
+        items.delete_one({
+            "_id": item["_id"],
+            "owner_id": str(current_user.id)
+            })
         flash("Post deleted successfully.", "success")
         return redirect(url_for("home"))
 
@@ -153,11 +166,11 @@ def add_item():
         # ensures all required fields are present or shows an error
         for field in REQUIRED_FIELDS:
             if not form.get(field):
-                return render_template("add.html", form=form, error=f"Field '{field}' is required.")
+                return render_template("edit.html", form=form, error=f"Field '{field}' is required.")
 
         # ensures dropdown values are real options
         if form["type"] not in ITEM_TYPES or form["building"] not in BUILDINGS:
-            return render_template("add.html", form=form, error="Invalid type or building.")
+            return render_template("edit.html", form=form, error="Invalid type or building.")
 
         now = datetime.now()   
         item = {
@@ -170,9 +183,11 @@ def add_item():
             "date": datetime.strptime(form["date"], "%Y-%m-%d"),
             "contact": form["contact"],
             "status": "open",
-            "user_id": current_user.get_id(),
             "created_at": now,
             "updated_at": now,
+
+            "owner_id": str(current_user.id),
+            "author_name": current_user.email.split("@")[0],
         }
         result = items.insert_one(item)
         flash("Post created!", "success")
@@ -181,12 +196,13 @@ def add_item():
     # if GET request, empty form
     return render_template("edit.html", form={}, error=None)
 
-# edits existing item which reuses add.html and posts to this route instead of creating a new post
+# edits existing item which reuses edit.html and posts to this route instead of creating a new post
 @app.route("/items/<item_id>/edit", methods=["GET", "POST"])
 @login_required
 def edit_item(item_id):
     # get the item to edit or return 404 if not found
     item=get_item_or_404(item_id)
+    require_item_owner(item)
 
     if request.method == "POST":
         form = request.form
@@ -205,7 +221,9 @@ def edit_item(item_id):
 
         # update the item in the database
         items.update_one(
-            {"_id": item["_id"]},
+            {"_id": item["_id"],
+            "owner_id": str(current_user.id)
+            },
             {"$set": {
                 "type": form["type"],
                 "title": form["title"],
@@ -267,6 +285,17 @@ def search():
     )
 
 #A: stats page
+
+def count_lost_by(field, limit=5):
+    """Count lost posts grouped by a field (e.g. building), most common first."""
+    pipeline = [
+        {"$match": {"type": "lost"}},                               # 1. only lost posts
+        {"$group": {"_id": "$" + field, "count": {"$sum": 1}}},     # 2. one group per value, count posts
+        {"$sort": {"count": -1, "_id": 1}},                         # 3. biggest count first, ties A-Z
+        {"$limit": limit},                                          # 4. keep the top few
+    ]
+    return list(items.aggregate(pipeline))
+
 @app.route("/stats")
 def stats():
     """Show summary numbers about all posts."""
@@ -278,6 +307,8 @@ def stats():
     claimed = items.count_documents({"status": "claimed"})
     # avoid dividing by zero when there are no posts yet
     claimed_pct = round(claimed / total * 100) if total else 0
+    top_buildings = count_lost_by("building")
+    top_categories = count_lost_by("category")
 
     return render_template(
         "stats.html",
@@ -287,6 +318,8 @@ def stats():
         open_count=open_count,
         claimed=claimed,
         claimed_pct=claimed_pct,
+        top_buildings=top_buildings,
+        top_categories=top_categories,
     )
 
 if __name__ == "__main__":
