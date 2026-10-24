@@ -72,7 +72,7 @@
 
       <div class="field">
         <label for="contact">Contact</label>
-        <input type="text" id="contact" name="contact" 
+        <input type="text" id="contact" name="contact" required
         value="{{ form.get('contact') }}" required />
       </div>
 
@@ -87,6 +87,12 @@
             </select>
         </div>
 
+        <div class="field" id = "claimed-section", style="display:none;">
+            <label for="claimed-contact">Claimed by (contact)</label>
+            <input type="text" id="claimed_contact" name = "claimed_contact"
+                value="{{ form.get('claimed_contact') or ''}}" />
+        </div>
+
     {% endif %}
 
 
@@ -99,6 +105,26 @@
       Cancel
     </a>
     </form>
+
+    <script>
+      const status = document.getElementById('status');
+      const contact = document.getElementById('claimed-section');
+      const claimedInput = document.getElementById('claimed_contact');
+
+      if(status && claimedInput){
+        function toggleClaimed(){
+          const claimed = status.value === 'claimed';
+          if (claimed){
+            contact.style.display = 'block';
+          } else {
+            contact.style.display = 'none';
+          }
+          claimedInput.required = claimed;
+        }
+        status.addEventListener('change', toggleClaimed);
+        toggleClaimed();
+      }
+    </script>
   </section>
 
 {% endblock %}
