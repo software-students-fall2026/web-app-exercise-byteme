@@ -175,7 +175,7 @@ def add_item():
         # go to new post's detail page
         return redirect(url_for("item_detail", item_id=str(result.inserted_id)))
     # if GET request, empty form
-    return render_template("add.html", form={}, error=None)
+    return render_template("edit.html", form={}, error=None)
 
 # edits existing item which reuses add.html and posts to this route instead of creating a new post
 @app.route("/items/<item_id>/edit", methods=["GET", "POST"])
@@ -189,13 +189,14 @@ def edit_item(item_id):
         # same validation as add_item
         for field in REQUIRED_FIELDS:
             if not form.get(field):
-                return render_template("add.html", form=form, item=item, error=f"Field '{field}' is required.")
+                return render_template("edit.html", form=form, item=item, error=f"Field '{field}' is required.")
 
         if form["type"] not in ITEM_TYPES or form["building"] not in BUILDINGS:
-            return render_template("add.html", form=form, item=item,error="Invalid type or building.")
+            return render_template("edit.html", form=form, item=item,error="Invalid type or building.")
 
         now = datetime.now()
-        item_date = datetime.strptime(form["date"], "%Y-%m-%d")   
+        item_date = datetime.strptime(form["date"], "%Y-%m-%d") 
+        status = form.get("status")
 
         # update the item in the database
         items.update_one(
@@ -210,7 +211,7 @@ def edit_item(item_id):
                 "date": item_date,
                 "contact": form["contact"],
                 "status": form.get("status"),
-                "claimed_contact": form.get("claimed_contact"),
+                "claimed_contact": form.get("claimed_contact") if status == "claimed" else "",
                 "updated_at": now,
         }},
         )
@@ -219,7 +220,7 @@ def edit_item(item_id):
 
     # if GET request, render the edit form with the current item data
     form = {**item, "date": item["date"].strftime("%Y-%m-%d")}
-    return render_template("add.html", form=form, item = item, error=None)
+    return render_template("edit.html", form=form, item = item, error=None)
 
 
 #D: search page

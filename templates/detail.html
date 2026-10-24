@@ -65,6 +65,13 @@
       <p>{{ item.status | capitalize }}</p>
     </div>
 
+    {% if item.status == "claimed" %}
+      <div class="field">
+        <h3>Claimed by</h3>
+        <p>{{ item.claimed_contact or "" }}</p>
+      </div>
+    {% endif %}
+
     <div class="field">
       <a
         class="button"
