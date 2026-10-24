@@ -97,7 +97,7 @@ python seed.py          # add 8 sample posts
 python seed.py --reset  # delete ALL posts first (asks for confirmation), then add the samples
 ```
 
-The database is shared by the whole team, so only one person needs to run this, and `--reset` should only be used if everyone agrees.
+The database is shared by the whole team, so only one person needs to run this, and `--reset` should only be used if everyone agrees. Sample posts have no owner, so nobody can edit or delete them. Log in and create your own post to try editing and deleting.
 
 ### 7. Run the app
 
@@ -111,16 +111,23 @@ The app is designed for phones. On a computer, use your browser's mobile view: i
 
 > If port 8000 is already in use on your machine, change the port in the last line of `app.py`.
 
+### 8. Create an account
+
+Anyone can browse, search and view stats, but you must log in to post, edit or delete. Open `/register` and sign up with an `@nyu.edu` email and a password of at least 8 characters, then log in. You can only edit or delete your own posts.
+
 ## Pages
 
 | Page | URL | Description |
 |---|---|---|
-| Home | `/` | Recent posts, with All / Lost / Found filter tabs |
-| Item detail | `/items/<id>` | All information about one post |
-| Post an item | `/items/new` | Form to report a lost or found item |
-| Edit item | `/items/<id>/edit` | Update a post or mark it as claimed |
-| Delete item | `/items/<id>/delete` | Confirm and delete a post |
+| Home | `/` | Recent posts, with All / Lost / Found / Claimed tabs |
+| Item detail | `/items/<id>` | All information about one post, plus possible matches |
+| Post an item | `/items/new` | Form to report a lost or found item (login required) |
+| Edit item | `/items/<id>/edit` | Update a post or mark it as claimed (owner only) |
+| Delete item | `/items/<id>/delete` | Confirm and delete a post (owner only) |
 | Search | `/search` | Search by keyword, type, category and building |
+| Stats | `/stats` | Post counts, claimed rate, and lost items by building and category |
+| Register | `/register` | Create an account with an NYU email |
+| Log in | `/login` | Log in to post, edit and delete |
 
 ## Data model
 
@@ -138,5 +145,15 @@ All posts are stored in a single MongoDB collection, `items`:
 | `date` | datetime | when the item was lost or found |
 | `contact` | string | email or phone of the poster |
 | `status` | string | `"open"` or `"claimed"` |
+| `owner_id` | string | id of the user who created the post |
+| `author_name` | string | poster's name, taken from their email |
 | `created_at` | datetime | when the post was created |
 | `updated_at` | datetime | when the post was last edited |
+
+User accounts are stored in a second collection, `users`:
+
+| Field | Type | Description |
+|---|---|---|
+| `_id` | ObjectId | created automatically by MongoDB |
+| `email` | string | NYU email address, unique |
+| `password_hash` | string | hashed password (the plain password is never stored) |
