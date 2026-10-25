@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Possible matches | Campus Lost &amp; Found{% endblock %}
+{% block content %}
+<a href="{{ url_for('item_detail', item_id=item['_id']) }}">← Back to item</a>
+<h1>Possible matches for {{ item.title }}</h1>
+{% if item.status == 'claimed' %}
+<p>This item has already been claimed.</p>
+{% else %}
+<p>Open posts of the opposite type in the same category and building.</p>
+{% for match in matches %}
+<a class="card" href="{{ url_for('item_detail', item_id=match['_id']) }}">
+  <span class="badge badge-{{ match.type }}">{{ match.type | capitalize }}</span>
+  <h3>{{ match.title }}</h3><p>{{ match.category }} · {{ match.building }}</p>
+</a>
+{% else %}<p class="empty">No possible matches on this page.</p>{% endfor %}
+<nav aria-label="Match pages">
+{% if page > 1 %}<a class="button" href="{{ url_for('item_matches', item_id=item['_id'], page=page-1) }}">Previous</a>{% endif %}
+{% if has_next %}<a class="button" href="{{ url_for('item_matches', item_id=item['_id'], page=page+1) }}">Next</a>{% endif %}
+</nav>
+{% endif %}
+{% endblock %}

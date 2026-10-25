@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block title %}Unable to submit form | Campus Lost &amp; Found{% endblock %}
+{% block content %}
+<h1>Unable to submit form</h1><p>{{ message }}</p>
+<a class="button" href="{{ url_for('home') }}">Back to home</a>
+{% endblock %}

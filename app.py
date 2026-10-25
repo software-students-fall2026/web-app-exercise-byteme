@@ -1,10 +1,12 @@
 import os
+import hmac
+import secrets
 
 import pymongo
 from bson.errors import InvalidId
 from bson.objectid import ObjectId
 from dotenv import load_dotenv
-from flask import Flask, render_template, abort, redirect, request, url_for, flash
+from flask import Flask, render_template, abort, redirect, request, url_for, flash, session
 from datetime import datetime
 import re
 
@@ -52,7 +54,27 @@ def inject_constants():
         "STATUSES": STATUSES,
         "CATEGORIES": CATEGORIES,
         "BUILDINGS": BUILDINGS,
+        "csrf_token": csrf_token,
     }
+
+def csrf_token():
+    """Create a session token for the delete confirmation form."""
+    if "csrf_token" not in session:
+        session["csrf_token"] = secrets.token_urlsafe(32)
+    return session["csrf_token"]
+
+
+def require_csrf():
+    expected = session.get("csrf_token", "")
+    submitted = request.form.get("csrf_token", "")
+    if not expected or not hmac.compare_digest(expected.encode(), submitted.encode()):
+        abort(400, description="Your form expired. Return to the item and try again.")
+
+
+@app.errorhandler(400)
+def bad_request(error):
+    return render_template("400.html", message=error.description), 400
+
 
 @app.errorhandler(404)
 def page_not_found(error):
@@ -108,26 +130,57 @@ def item_detail(item_id):
     #display one item's details
     item=get_item_or_404(item_id)
 
-    possible_matches = []
-    opposite_type = {"lost": "found", "found": "lost"}.get(item.get("type"))
-    if opposite_type and item.get("category") and item.get("building"):
-        query = {
-            "type": opposite_type,
-            "status": "open",
-            "category": item["category"],
-            "building": item["building"],
-        }
-        possible_matches = list(
-            items.find(query).sort("created_at", pymongo.DESCENDING)
+    query = match_query(item)
+    candidates = []
+    if query:
+        candidates = list(
+            items.find(query).sort([("created_at", -1), ("_id", -1)]).limit(6)
         )
-    
+    possible_matches = candidates[:5]
+    has_more_matches = len(candidates) > 5
+
     is_owner = (
         current_user.is_authenticated
         and item.get("owner_id") == str(current_user.id)
     )
 
     return render_template(
-        "detail.html", item=item, possible_matches=possible_matches, is_owner=is_owner
+        "detail.html", item=item, possible_matches=possible_matches,
+        is_owner=is_owner, has_more_matches=has_more_matches
+    )
+
+
+def match_query(item):
+    """Only open source items receive opposite-type, open matches."""
+    opposite = {"lost": "found", "found": "lost"}.get(item.get("type"))
+    if (item.get("status") != "open" or not opposite
+            or not item.get("category") or not item.get("building")):
+        return None
+    return {
+        "type": opposite, "status": "open",
+        "category": item["category"], "building": item["building"],
+    }
+
+
+@app.route("/items/<item_id>/matches")
+def item_matches(item_id):
+    item = get_item_or_404(item_id)
+    try:
+        page = int(request.args.get("page", "1"))
+    except ValueError:
+        abort(400, description="Invalid page number.")
+    if page < 1 or page > 10000:
+        abort(400, description="Invalid page number.")
+    query = match_query(item)
+    candidates = []
+    if query:
+        candidates = list(
+            items.find(query).sort([("created_at", -1), ("_id", -1)])
+            .skip((page - 1) * 10).limit(11)
+        )
+    return render_template(
+        "matches.html", item=item, matches=candidates[:10],
+        has_next=len(candidates) > 10, page=page,
     )
 
 
@@ -145,6 +198,7 @@ def delete_item(item_id):
     require_item_owner(item)
 
     if request.method=="POST": 
+        require_csrf()
         items.delete_one({
             "_id": item["_id"],
             "owner_id": str(current_user.id)
