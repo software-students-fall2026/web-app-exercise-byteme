@@ -19,7 +19,7 @@ from auth import init_auth_routes
 from user_model import User
 
 
-REQUIRED_FIELDS = ["type", "title", "building", "date", "contact"]
+REQUIRED_FIELDS = ["type", "title", "building", "contact"]
 
 load_dotenv()
 
@@ -80,6 +80,15 @@ def bad_request(error):
 def page_not_found(error):
     """Show our own styled page instead of Flask's default 404 page."""
     return render_template("404.html"), 404
+
+def parse_date(date_str):
+    """Return datetime if datetime submitted or return None."""
+    if not date_str:
+        return None
+    try:
+        return datetime.strptime(date_str, "%Y-%m-%d")
+    except ValueError:
+        return None
 
 #A: home / list page
 @app.route("/")
@@ -234,7 +243,7 @@ def add_item():
             "category": form["category"],
             "building": form["building"],
             "location": form["location"],
-            "date": datetime.strptime(form["date"], "%Y-%m-%d"),
+            "date": parse_date(form.get("date")),
             "contact": form["contact"],
             "status": "open",
             "created_at": now,
@@ -270,7 +279,7 @@ def edit_item(item_id):
             return render_template("edit.html", form=form, item=item,error="Invalid type or building.")
 
         now = datetime.now()
-        item_date = datetime.strptime(form["date"], "%Y-%m-%d") 
+        item_date = parse_date(form.get("date"))
         status = form.get("status")
 
         # update the item in the database
@@ -296,7 +305,8 @@ def edit_item(item_id):
         return redirect(url_for("item_detail", item_id=item_id))
 
     # if GET request, render the edit form with the current item data
-    form = {**item, "date": item["date"].strftime("%Y-%m-%d")}
+    item_date = item.get("date")
+    form = {**item, "date": item_date.strftime("%Y-%m-%d") if item_date else ""}
     return render_template("edit.html", form=form, item = item, error=None)
 
 
