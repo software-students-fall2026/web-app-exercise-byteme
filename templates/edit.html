@@ -17,7 +17,7 @@
       action="{{ url_for('edit_item', item_id=item['_id']) if item else url_for('add_item') }}">
 
       <div class="field">
-        <label for="type">Type</label>
+        <label for="type">Type&#42</label>
         <select name="type" id="type" required>
             <option value=""> ----choose----</option>
                 {% for t in ITEM_TYPES %}
@@ -28,8 +28,8 @@
 
 
       <div class="field">
-        <label for="title">Title</label>
-        <input type="text" id="title" name="title" required 
+        <label for="title">Title&#42 </label>
+        <input type="text" id="title" name="title" value = "{{ form.title or '' }}"required
         value="{{ form.get('title') }}" />
       </div>
       
@@ -49,7 +49,7 @@
       </div>
 
       <div class="field">
-        <label for="building">Building</label>
+        <label for="building">Building&#42</label>
          <select name="building" id="building" required>
             <option value=""> ----choose----</option>
                 {% for b in BUILDINGS %}
@@ -67,18 +67,18 @@
       <div class="field">
         <label for="date">Date</label>
         <input type="date" id="date" name="date" 
-        value="{{ form.get('date') }}" required />
+        value="{{ form.get('date') }}" />
       </div>
 
       <div class="field">
-        <label for="contact">Contact</label>
-        <input type="text" id="contact" name="contact" required
+        <label for="contact">Contact (Phone or Email)&#42 </label>
+        <input type="text" id="contact" name="contact" value = "{{ form.contact or '' }}" required
         value="{{ form.get('contact') }}" required />
       </div>
 
     {% if item %}
         <div class="field">
-            <label for="status">Status</label>
+            <label for="status">Status&#42</label>
             <select name="status" id="status" required>
                 <option value=""> ----choose----</option>
                     {% for s in STATUSES %}
@@ -88,8 +88,8 @@
         </div>
 
         <div class="field" id = "claimed-section", style="display:none;">
-            <label for="claimed-contact">Claimed by (contact)</label>
-            <input type="text" id="claimed_contact" name = "claimed_contact"
+            <label for="claimed-contact">Claimed by (contact)&#42</label>
+            <input type="text" id="claimed_contact" name = "claimed_contact" required
                 value="{{ form.get('claimed_contact') or ''}}" />
         </div>
 
