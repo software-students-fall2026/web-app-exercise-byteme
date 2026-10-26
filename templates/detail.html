@@ -107,6 +107,9 @@
 
 <section aria-labelledby="possible-matches-heading">
   <h2 id="possible-matches-heading">Possible matches</h2>
+  {% if item.status == 'claimed' %}
+  <p>This item has already been claimed.</p>
+  {% else %}
   <p>Open posts of the opposite type in the same category and building.</p>
 
   {% for match in possible_matches %}
@@ -120,5 +123,9 @@
   {% else %}
   <p class="empty">No possible matches yet.</p>
   {% endfor %}
+  {% if has_more_matches %}
+  <a class="button" href="{{ url_for('item_matches', item_id=item['_id']) }}">View more matches</a>
+  {% endif %}
+  {% endif %}
 </section>
 {% endblock %}

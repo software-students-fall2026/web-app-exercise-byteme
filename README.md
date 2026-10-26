@@ -123,6 +123,7 @@ Anyone can browse, search and view stats, but you must log in to post, edit or d
 | Item detail | `/items/<id>` | All information about one post, plus possible matches |
 | Post an item | `/items/new` | Form to report a lost or found item (login required) |
 | Edit item | `/items/<id>/edit` | Update a post or mark it as claimed (owner only) |
+| More matches | `/items/<id>/matches` | Browse open possible matches, ten per page |
 | Delete item | `/items/<id>/delete` | Confirm and delete a post (owner only) |
 | Search | `/search` | Search by keyword, type, category and building |
 | Stats | `/stats` | Post counts, claimed rate, and lost items by building and category |
@@ -157,3 +158,21 @@ User accounts are stored in a second collection, `users`:
 | `_id` | ObjectId | created automatically by MongoDB |
 | `email` | string | NYU email address, unique |
 | `password_hash` | string | hashed password (the plain password is never stored) |
+
+
+## Detail and delete user stories
+
+Three improvements are implemented: claimed posts no longer show match suggestions; open posts show five recent matches with a paginated View more page; deletion requires a session token as well as login and ownership.
+
+See [the user stories and implementation guide](docs/detail-delete-user-stories.md).
+
+### Run the focused tests
+
+With your Python environment activated:
+
+```sh
+python -m pip install -r requirements-dev.txt
+python -m pytest -q
+```
+
+Tests use an in-memory MongoDB substitute and do not load `.env` or access the shared database. Keep a valid `SECRET_KEY` in your ignored `.env` when running the real application, as required for sessions and login.
